@@ -1,1 +1,0 @@
-package newfeed_gen_client

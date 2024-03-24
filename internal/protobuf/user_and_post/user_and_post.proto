@@ -1,0 +1,9 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+
+option go_package = ".;user_and_post";
+package user_and_post;
+
+service UserAndPost {
+
+}

@@ -4,13 +4,18 @@ option go_package = ".;newsfeed";
 package newsfeed;
 
 service Newsfeed {
-    rpc GenerateNewsfeed(NewsfeedRequest) returns (NewsfeedResponse) {}
+    rpc GenerateNewsfeed(GenerateNewsfeedRequest) returns (GenerateNewsfeedResponse) {}
 }
 
-message NewsfeedRequest {
+message GenerateNewsfeedRequest {
     int64 user_id = 1;
 }
 
-message NewsfeedResponse {
-    repeated int64 post_ids = 1;
+message GenerateNewsfeedResponse {
+    enum GenerateNewsfeedStatus {
+        OK = 0;
+        USER_NOT_FOUND = 1;
+    }
+    GenerateNewsfeedStatus status = 1;
+    repeated int64 post_ids = 2;
 }

@@ -26,7 +26,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NewsfeedClient interface {
-	GenerateNewsfeed(ctx context.Context, in *NewsfeedRequest, opts ...grpc.CallOption) (*NewsfeedResponse, error)
+	GenerateNewsfeed(ctx context.Context, in *GenerateNewsfeedRequest, opts ...grpc.CallOption) (*GenerateNewsfeedResponse, error)
 }
 
 type newsfeedClient struct {
@@ -37,8 +37,8 @@ func NewNewsfeedClient(cc grpc.ClientConnInterface) NewsfeedClient {
 	return &newsfeedClient{cc}
 }
 
-func (c *newsfeedClient) GenerateNewsfeed(ctx context.Context, in *NewsfeedRequest, opts ...grpc.CallOption) (*NewsfeedResponse, error) {
-	out := new(NewsfeedResponse)
+func (c *newsfeedClient) GenerateNewsfeed(ctx context.Context, in *GenerateNewsfeedRequest, opts ...grpc.CallOption) (*GenerateNewsfeedResponse, error) {
+	out := new(GenerateNewsfeedResponse)
 	err := c.cc.Invoke(ctx, Newsfeed_GenerateNewsfeed_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func (c *newsfeedClient) GenerateNewsfeed(ctx context.Context, in *NewsfeedReque
 // All implementations must embed UnimplementedNewsfeedServer
 // for forward compatibility
 type NewsfeedServer interface {
-	GenerateNewsfeed(context.Context, *NewsfeedRequest) (*NewsfeedResponse, error)
+	GenerateNewsfeed(context.Context, *GenerateNewsfeedRequest) (*GenerateNewsfeedResponse, error)
 	mustEmbedUnimplementedNewsfeedServer()
 }
 
@@ -58,7 +58,7 @@ type NewsfeedServer interface {
 type UnimplementedNewsfeedServer struct {
 }
 
-func (UnimplementedNewsfeedServer) GenerateNewsfeed(context.Context, *NewsfeedRequest) (*NewsfeedResponse, error) {
+func (UnimplementedNewsfeedServer) GenerateNewsfeed(context.Context, *GenerateNewsfeedRequest) (*GenerateNewsfeedResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateNewsfeed not implemented")
 }
 func (UnimplementedNewsfeedServer) mustEmbedUnimplementedNewsfeedServer() {}
@@ -75,7 +75,7 @@ func RegisterNewsfeedServer(s grpc.ServiceRegistrar, srv NewsfeedServer) {
 }
 
 func _Newsfeed_GenerateNewsfeed_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(NewsfeedRequest)
+	in := new(GenerateNewsfeedRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func _Newsfeed_GenerateNewsfeed_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: Newsfeed_GenerateNewsfeed_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NewsfeedServer).GenerateNewsfeed(ctx, req.(*NewsfeedRequest))
+		return srv.(NewsfeedServer).GenerateNewsfeed(ctx, req.(*GenerateNewsfeedRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

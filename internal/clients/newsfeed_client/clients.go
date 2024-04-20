@@ -9,15 +9,15 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-type randomClients struct {
+type randomClient struct {
 	clients []newsfeed.NewsfeedClient
 }
 
-func (r *randomClients) GenerateNewsfeed(ctx context.Context, in *newsfeed.NewsfeedRequest, opts ...grpc.CallOption) (*newsfeed.NewsfeedResponse, error) {
+func (r *randomClient) GenerateNewsfeed(ctx context.Context, in *newsfeed.GenerateNewsfeedRequest, opts ...grpc.CallOption) (*newsfeed.GenerateNewsfeedResponse, error) {
 	return r.clients[rand.Intn(len(r.clients))].GenerateNewsfeed(ctx, in, opts...)
 }
 
-func NewClients(hosts []string) (newsfeed.NewsfeedClient, error) {
+func NewClient(hosts []string) (newsfeed.NewsfeedClient, error) {
 	var opts = []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
 	clients := make([]newsfeed.NewsfeedClient, 0, len(hosts))
 	for _, host := range hosts {
@@ -28,5 +28,5 @@ func NewClients(hosts []string) (newsfeed.NewsfeedClient, error) {
 		client := newsfeed.NewNewsfeedClient(conn)
 		clients = append(clients, client)
 	}
-	return &randomClients{clients}, nil
+	return &randomClient{clients}, nil
 }

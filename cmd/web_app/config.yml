@@ -1,5 +1,5 @@
 my_sql: &MYSQL
-  dsn: "root:123456@tcp(locallhost:3306)/socialnetwork?charset=utf8mb4&parseTime=True&loc=Local"
+  dsn: "root:123456@tcp(localhost:3306)/socialnetwork?charset=utf8mb4&parseTime=True&loc=Local"
   defaultstringsize: 256
   disabledatetimeprecision: true
   dontsupportrenameindex: true

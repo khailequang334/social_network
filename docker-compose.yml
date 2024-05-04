@@ -1,0 +1,88 @@
+version: '3'
+services:
+  web_app:
+    build:
+      context: .
+      dockerfile: cmd/web_app/Dockerfile
+      target: test_env
+    image: web_app
+    ports:
+      - 8003:8003
+    depends_on:
+      - user_and_post
+      - newsfeed
+    networks:
+      - intranet
+      - default
+    hostname: web
+
+  user_and_post:
+    build:
+      context: .
+      dockerfile: cmd/user_and_post/Dockerfile
+      target: test_env
+    image: user_and_post_svc
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - intranet
+    hostname: user_and_post
+    ports:
+      - 8001:8001
+
+  newsfeed:
+    build:
+      context: .
+      dockerfile: cmd/newsfeed/Dockerfile
+      target: test_env
+    image: newsfeed_svc
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - intranet
+    hostname: newsfeed
+    ports:
+      - 8002:8002
+
+  mysql:
+    image: mysql:8.0
+    volumes:
+      - ./mysql_db/my.cnf:/etc/mysql/my.cnf
+      - ./mysql_db/data/mysql:/var/lib/mysql
+      - ./mysql_db/scripts/init:/docker-entrypoint-initdb.d  #default init entrypoint 
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: socialnetwork
+    ports:
+      - 3306:3306
+    networks:
+      - intranet
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    hostname: mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 5
+
+  redis:
+    image: redis:latest
+    networks:
+      - intranet
+    ports:
+      - 6379:6379
+    hostname: redis
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
+
+networks:
+  intranet: {}
+  default: {}

@@ -102,8 +102,7 @@ func NewLogger() (*zap.Logger, error) {
 			"levelEncoder": "lowercase"
 		},
 		"outputPaths": ["stdout", "/tmp/logs"],
-		"errorOutputPaths": ["stderr"],
-		"initialFields": {"foo": "bar"}
+		"errorOutputPaths": ["stderr"]
 	}`)
 
 	var cfg zap.Config

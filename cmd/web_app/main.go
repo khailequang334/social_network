@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 
 	"github.com/khailequang334/social_network/configs"
@@ -17,7 +16,7 @@ var (
 func main() {
 	flag.Parse()
 	conf, err := configs.GetWebConfig(*path)
-	fmt.Println(conf)
+	// fmt.Println(conf)
 	if err != nil {
 		log.Fatalf("failed to parse config: %v", err)
 	}

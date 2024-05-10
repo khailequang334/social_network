@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/khailequang334/social_network/configs"
@@ -22,12 +24,54 @@ type NewsfeedService struct {
 	Logger *zap.Logger
 }
 
+// Retrieve newsfeed from Redis cache
+func (nfs *NewsfeedService) getNewsfeedFromCache(ctx context.Context, userId int64) (*newsfeed.GenerateNewsfeedResponse, error) {
+	cacheKey := "newsfeed:" + strconv.FormatInt(userId, 10)
+	cachedData, err := nfs.Redis.Get(ctx, cacheKey).Bytes()
+	if err != nil {
+		if err == redis.Nil {
+			return nil, nil // Cache miss
+		}
+		return nil, err
+	}
+
+	var cachedNewsfeed newsfeed.GenerateNewsfeedResponse
+	err = json.Unmarshal(cachedData, &cachedNewsfeed)
+	if err != nil {
+		return nil, err
+	}
+
+	return &cachedNewsfeed, nil
+}
+
+// Cache newsfeed in Redis
+func (nfs *NewsfeedService) cacheNewsfeed(ctx context.Context, userId int64, newsfeedResp *newsfeed.GenerateNewsfeedResponse) error {
+	cacheKey := "newsfeed:" + strconv.FormatInt(userId, 10)
+	cacheDuration := time.Hour // cache 1 hour
+
+	data, err := json.Marshal(newsfeedResp)
+	if err != nil {
+		return err
+	}
+
+	return nfs.Redis.Set(ctx, cacheKey, data, cacheDuration).Err()
+}
+
 func (nfs *NewsfeedService) GenerateNewsfeed(ctx context.Context, request *newsfeed.GenerateNewsfeedRequest) (*newsfeed.GenerateNewsfeedResponse, error) {
 	// Ensure the user exists
 	err := nfs.ensureUserExist(request.UserId)
 	if err != nil {
 		nfs.Logger.Debug("User not found", zap.Error(err))
 		return &newsfeed.GenerateNewsfeedResponse{Status: newsfeed.GenerateNewsfeedResponse_USER_NOT_FOUND}, nil
+	}
+
+	// Check if the newsfeed is cached in Redis
+	cachedNewsfeed, err := nfs.getNewsfeedFromCache(ctx, request.UserId)
+	if err != nil {
+		nfs.Logger.Error("failed to get newsfeed from cache", zap.Error(err), zap.Int64("UserId", request.UserId))
+	}
+	if cachedNewsfeed != nil {
+		return cachedNewsfeed, nil
 	}
 
 	// Query the user and their following users with their posts
@@ -44,6 +88,15 @@ func (nfs *NewsfeedService) GenerateNewsfeed(ctx context.Context, request *newsf
 		for _, post := range following.Posts {
 			postIDs = append(postIDs, int64(post.ID))
 		}
+	}
+
+	// Cache the generated newsfeed
+	err = nfs.cacheNewsfeed(ctx, request.UserId, &newsfeed.GenerateNewsfeedResponse{
+		Status:  newsfeed.GenerateNewsfeedResponse_OK,
+		PostIds: postIDs,
+	})
+	if err != nil {
+		nfs.Logger.Error("Failed to cache generated newsfeed", zap.Error(err), zap.Int64("UserId", request.UserId))
 	}
 
 	// Return the generated newsfeed

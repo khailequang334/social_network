@@ -1,0 +1,22 @@
+my_sql: &MYSQL
+  dsn: "root:123456@tcp(mysql:3306)/socialnetwork?charset=utf8mb4&parseTime=True&loc=Local"
+  defaultstringsize: 256
+  disabledatetimeprecision: true
+  dontsupportrenameindex: true
+  skipinitializewithversion: false
+redis: &REDIS
+  addr: redis:6379
+user_and_post_config:
+  port: 8001
+  my_sql: *MYSQL
+  redis: *REDIS
+newsfeed_config:
+  port: 8002
+  my_sql: *MYSQL
+  redis: *REDIS
+web_config:
+  port: 8080
+  user_and_post:
+    hosts: ["user_and_post:8001"]
+  newsfeed:
+    hosts: ["newsfeed:8002"]

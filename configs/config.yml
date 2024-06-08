@@ -15,7 +15,7 @@ newsfeed_config:
   my_sql: *MYSQL
   redis: *REDIS
 web_config:
-  port: 8003
+  port: 8080
   user_and_post:
     hosts: ["user_and_post:8001"]
   newsfeed:

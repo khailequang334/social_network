@@ -7,8 +7,8 @@ import (
 	"net"
 
 	"github.com/khailequang334/social_network/configs"
-	"github.com/khailequang334/social_network/internal/app/newsfeed_service"
-	"github.com/khailequang334/social_network/internal/protobuf/newsfeed"
+	"github.com/khailequang334/social_network/internal/interfaces/app/newsfeed_service"
+	"github.com/khailequang334/social_network/internal/interfaces/proto/protobuf/newsfeed"
 	"google.golang.org/grpc"
 )
 

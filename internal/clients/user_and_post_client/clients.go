@@ -4,7 +4,7 @@ import (
 	"context"
 	"math/rand"
 
-	"github.com/khailequang334/social_network/internal/protobuf/user_and_post"
+	"github.com/khailequang334/social_network/internal/interfaces/proto/protobuf/user_and_post"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

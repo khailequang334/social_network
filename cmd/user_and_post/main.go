@@ -7,8 +7,8 @@ import (
 	"net"
 
 	"github.com/khailequang334/social_network/configs"
-	"github.com/khailequang334/social_network/internal/app/user_and_post_service"
-	"github.com/khailequang334/social_network/internal/protobuf/user_and_post"
+	"github.com/khailequang334/social_network/internal/interfaces/app/user_and_post_service"
+	"github.com/khailequang334/social_network/internal/interfaces/proto/protobuf/user_and_post"
 	"google.golang.org/grpc"
 )
 
@@ -17,7 +17,6 @@ var (
 )
 
 func main() {
-	// Start authenticate and post service
 	conf, err := configs.GetUserAndPostConfig(*path)
 	if err != nil {
 		log.Fatalf("failed to parse config: %v", err)

@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: social_network_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: socialnetwork
+      MYSQL_USER: socialuser
+      MYSQL_PASSWORD: socialpass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    networks:
+      - social_network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: social_network_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - social_network
+
+  # User & Post Service
+  user_and_post:
+    build:
+      context: ../..
+      dockerfile: cmd/user_and_post/Dockerfile
+    container_name: social_network_user_and_post
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      - CONFIG_PATH=/app/configs/config.yml
+    volumes:
+      - ../../configs:/app/configs
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - social_network
+
+  # Newsfeed Service
+  newsfeed:
+    build:
+      context: ../..
+      dockerfile: cmd/newsfeed/Dockerfile
+    container_name: social_network_newsfeed
+    restart: unless-stopped
+    ports:
+      - "8002:8002"
+    environment:
+      - CONFIG_PATH=/app/configs/config.yml
+    volumes:
+      - ../../configs:/app/configs
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - social_network
+
+  # Web Server (API Gateway)
+  web_server:
+    build:
+      context: ../..
+      dockerfile: cmd/web_server/Dockerfile
+    container_name: social_network_web_server
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - CONFIG_PATH=/app/configs/config.yml
+    volumes:
+      - ../../configs:/app/configs
+    depends_on:
+      - user_and_post
+      - newsfeed
+    networks:
+      - social_network
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  social_network:
+    driver: bridge

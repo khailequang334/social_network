@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option go_package = "github.com/khailequang334/social_network/internal/interfaces/proto/protobuf/newsfeed;newsfeed";
+package newsfeed;
+
+service Newsfeed {
+    rpc GenerateNewsfeed(GenerateNewsfeedRequest) returns (GenerateNewsfeedResponse) {}
+}
+
+message GenerateNewsfeedRequest {
+    int64 user_id = 1;
+}
+
+message GenerateNewsfeedResponse {
+    enum GenerateNewsfeedStatus {
+        OK = 0;
+        USER_NOT_FOUND = 1;
+    }
+    GenerateNewsfeedStatus status = 1;
+    repeated int64 post_ids = 2;
+}
